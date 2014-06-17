@@ -6,7 +6,7 @@ godmi-utils
  
 #例子：
  [root@tod godmi-utils]# cat template.go
-`
+```go
 type PortableBatteryDeviceChemistry byte
 
 type PortableBattery struct {
@@ -27,11 +27,11 @@ type PortableBattery struct {
         DesignCapacityMultiplier  byte
         OEMSepecific              uint32
 }
-`
+```
 如上所示，定义了一个结构体，其中InfoCommon的定义放在godmi-gentype.go里面了，上面的定义放在另外一个文件template.go
-那么， 通过godmi-gentype.go, 生成以下函数
-# go run godmi-gentype.go -template ./template.go -typename="PortableBattery"
-`
+那么，通过godmi-gentype.go, 生成以下函数
+\# go run godmi-gentype.go -template ./template.go -typename="PortableBattery"
+```go
 func (p PortableBattery) String() string {
         return fmt.Sprintf("Portable Battery:\n\t\t"+
                 "Location: %s\n\t\t"+
@@ -87,4 +87,4 @@ func (h DMIHeader) PortableBattery() PortableBattery {
         p.OEMSepecific = U32(data[0x16:0x1A])
         return p
 }
-`
+```
