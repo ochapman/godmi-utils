@@ -109,8 +109,49 @@ func splitCap(s string) string {
 	return str
 }
 
-func (s StructTypes) NewString(name string) string {
-	return "NewString"
+func (s StructTypes) DMIHeaderMethod(name string) string {
+	nstring := bytes.NewBuffer([]byte{})
+	v := strings.ToLower(name)[0]
+	fmt.Fprintf(nstring, "func (h DMIHeader) %s() %s {\n"+
+		"var %c %s\n"+
+		"data := h.data\n",
+		name, name, v, name)
+	// Field
+	var offset int
+	for _, ss := range s {
+		if ss.Type == "InfoCommon" {
+			offset += 4
+			continue
+		}
+		switch ss.Type {
+		case "byte":
+			fmt.Fprintf(nstring, "%c.%s = data[0x%02X]\n", v, ss.Name, offset)
+			offset += 1
+		case "uint16":
+			fmt.Fprintf(nstring, "%c.%s = U16(data[0x%02X:0x%02X])\n", v, ss.Name, offset, offset+2)
+			offset += 2
+		case "uint32":
+			fmt.Fprintf(nstring, "%c.%s = U32(data[0x%02X:0x%02X])\n", v, ss.Name, offset, offset+4)
+			offset += 4
+		case "uint64":
+			fmt.Fprintf(nstring, "%c.%s = U64(data[0x%02X:0x%02X])\n", v, ss.Name, offset, offset+8)
+			offset += 8
+		case "string":
+			fmt.Fprintf(nstring, "%c.%s = h.FieldString(int(data[0x%02X]))\n", v, ss.Name, offset)
+			offset += 1
+		default:
+			fmt.Fprintf(nstring, "%c.%s = %s(data[0x%02X])\n", v, ss.Name, ss.Type, offset)
+			offset += 1
+		}
+	}
+	// End of func
+	fmt.Fprintf(nstring, "return %c\n}\n", v)
+	fmtnstring, err := format.Source(nstring.Bytes())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "format.Source() failed: %s", err)
+		fmt.Println(nstring)
+	}
+	return string(fmtnstring)
 }
 
 func (s StructTypes) TypeString(name string) string {
@@ -149,7 +190,7 @@ func (s StructTypes) TypeString(name string) string {
 		}
 		fmt.Fprintf(tstring, "%c.%s,\n", lowername[0], ss.Name)
 	}
-	fmt.Fprintf(tstring, ")\n}")
+	fmt.Fprintf(tstring, ")\n}\n")
 	fmttstring, err := format.Source(tstring.Bytes())
 	if err != nil {
 		return "Error"
@@ -173,4 +214,6 @@ func main() {
 	}
 	s := sts.TypeString(*typename)
 	fmt.Println(s)
+	n := sts.DMIHeaderMethod(*typename)
+	fmt.Println(n)
 }
