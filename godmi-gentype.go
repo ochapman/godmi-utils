@@ -131,10 +131,10 @@ func (s StructTypes) TypeString(name string) string {
 			continue
 		}
 		var fm string
-		if ss.Type == "string" {
-			fm = "%s"
-		} else {
+		if ss.Type == "byte" || ss.Type == "uint16" || ss.Type == "uint32" || ss.Type == "uint64" {
 			fm = "%d"
+		} else {
+			fm = "%s"
 		}
 		fmt.Fprintf(tstring, "\"%s: %s", splitCap(ss.Name), fm)
 		if i != len(s)-1 {
