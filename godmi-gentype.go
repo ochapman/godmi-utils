@@ -1,12 +1,18 @@
 /*
+* godmi-gentype.go
 * generate function and string method
+*
+* Chapman Ou <chapmanou@tencent.com>
+* 2014-06-17
  */
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
 	"io/ioutil"
@@ -108,6 +114,7 @@ func (s StructTypes) NewString(name string) string {
 }
 
 func (s StructTypes) TypeString(name string) string {
+	tstring := bytes.NewBuffer([]byte{})
 	lowername := strings.ToLower(name)
 	for i, ss := range s {
 		s[i].Name = strings.TrimFunc(ss.Name, func(r rune) bool {
@@ -117,8 +124,8 @@ func (s StructTypes) TypeString(name string) string {
 			return false
 		})
 	}
-	fmt.Printf("func (%c %s) String() string {\n", lowername[0], name)
-	fmt.Printf("return fmt.Sprintf(\"%s:\\n\\t\\t\"+\n", splitCap(name))
+	fmt.Fprintf(tstring, "func (%c %s) String() string {\n", lowername[0], name)
+	fmt.Fprintf(tstring, "return fmt.Sprintf(\"%s:\\n\\t\\t\"+\n", splitCap(name))
 	for i, ss := range s {
 		if ss.Type == "InfoCommon" {
 			continue
@@ -129,21 +136,25 @@ func (s StructTypes) TypeString(name string) string {
 		} else {
 			fm = "%d"
 		}
-		fmt.Printf("\"%s: %s", splitCap(ss.Name), fm)
+		fmt.Fprintf(tstring, "\"%s: %s", splitCap(ss.Name), fm)
 		if i != len(s)-1 {
-			fmt.Printf("\\n\\t\\t\"+\n")
+			fmt.Fprintf(tstring, "\\n\\t\\t\"+\n")
 		} else {
-			fmt.Printf("\\n\",\n")
+			fmt.Fprintf(tstring, "\\n\",\n")
 		}
 	}
 	for _, ss := range s {
 		if ss.Type == "InfoCommon" {
 			continue
 		}
-		fmt.Printf("%c.%s,\n", lowername[0], ss.Name)
+		fmt.Fprintf(tstring, "%c.%s,\n", lowername[0], ss.Name)
 	}
-	fmt.Println(")\n}")
-	return "TypeString"
+	fmt.Fprintf(tstring, ")\n}")
+	fmttstring, err := format.Source(tstring.Bytes())
+	if err != nil {
+		return "Error"
+	}
+	return string(fmttstring)
 }
 
 func main() {
@@ -160,5 +171,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "gen() failed: %s", err)
 		os.Exit(-1)
 	}
-	sts.TypeString("PortableBattery")
+	s := sts.TypeString(*typename)
+	fmt.Println(s)
 }
