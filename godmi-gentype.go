@@ -2,7 +2,7 @@
 * godmi-gentype.go
 * generate function and string method
 *
-* Chapman Ou <chapmanou@tencent.com>
+* Chapman Ou <ochapman@ochapman.cn>
 * 2014-06-17
  */
 package main
