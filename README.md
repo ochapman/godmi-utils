@@ -29,8 +29,8 @@ type PortableBattery struct {
 }
 ```
 如上所示，定义了一个结构体，其中InfoCommon的定义放在godmi-gentype.go里面了，上面的定义放在另外一个文件template.go
-那么，通过godmi-gentype.go, 生成以下函数
-\# go run godmi-gentype.go -template ./template.go -typename="PortableBattery"
+那么，通过godmi-gentype.go, 生成以下函数.
+ [root@tod godmi-utils]# go run godmi-gentype.go -template ./template.go -typename="PortableBattery"
 ```go
 func (p PortableBattery) String() string {
         return fmt.Sprintf("Portable Battery:\n\t\t"+
