@@ -184,13 +184,17 @@ func (s StructTypes) TypeString(name string) string {
 			fmt.Fprintf(tstring, "\\n\",\n")
 		}
 	}
-	for _, ss := range s {
+	for i, ss := range s {
 		if ss.Type == "InfoCommon" {
 			continue
 		}
-		fmt.Fprintf(tstring, "%c.%s,\n", lowername[0], ss.Name)
+		if i != len(s)-1 {
+			fmt.Fprintf(tstring, "%c.%s,\n", lowername[0], ss.Name)
+		} else {
+			fmt.Fprintf(tstring, "%c.%s)\n", lowername[0], ss.Name)
+		}
 	}
-	fmt.Fprintf(tstring, ")\n}\n")
+	fmt.Fprintf(tstring, "}\n")
 	fmttstring, err := format.Source(tstring.Bytes())
 	if err != nil {
 		return "Error"
