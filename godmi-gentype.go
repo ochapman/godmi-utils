@@ -156,7 +156,7 @@ func (s StructTypes) DMIHeaderMethod(name string) string {
 
 func (s StructTypes) TypeString(name string) string {
 	tstring := bytes.NewBuffer([]byte{})
-	lowername := strings.ToLower(name)
+	v := strings.ToLower(name)[0]
 	for i, ss := range s {
 		s[i].Name = strings.TrimFunc(ss.Name, func(r rune) bool {
 			if r == '[' || r == ']' {
@@ -165,7 +165,7 @@ func (s StructTypes) TypeString(name string) string {
 			return false
 		})
 	}
-	fmt.Fprintf(tstring, "func (%c %s) String() string {\n", lowername[0], name)
+	fmt.Fprintf(tstring, "func (%c %s) String() string {\n", v, name)
 	fmt.Fprintf(tstring, "return fmt.Sprintf(\"%s:\\n\\t\\t\"+\n", splitCap(name))
 	for i, ss := range s {
 		if ss.Type == "InfoCommon" {
@@ -189,9 +189,9 @@ func (s StructTypes) TypeString(name string) string {
 			continue
 		}
 		if i != len(s)-1 {
-			fmt.Fprintf(tstring, "%c.%s,\n", lowername[0], ss.Name)
+			fmt.Fprintf(tstring, "%c.%s,\n", v, ss.Name)
 		} else {
-			fmt.Fprintf(tstring, "%c.%s)\n", lowername[0], ss.Name)
+			fmt.Fprintf(tstring, "%c.%s)\n", v, ss.Name)
 		}
 	}
 	fmt.Fprintf(tstring, "}\n")
