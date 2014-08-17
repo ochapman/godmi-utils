@@ -34,22 +34,22 @@ type PortableBattery struct {
  [root@tod godmi-utils]# go run godmi-gentype.go -template ./template.go -typename="PortableBattery"
 ```go
 func (p PortableBattery) String() string {
-        return fmt.Sprintf("Portable Battery:\n\t\t"+
-                "Location: %s\n\t\t"+
-                "Manufacturer: %s\n\t\t"+
-                "Manufacturer Date: %s\n\t\t"+
-                "Serial Number: %s\n\t\t"+
-                "Device Name: %s\n\t\t"+
-                "Device Chemistry: %s\n\t\t"+
-                "Design Capacity: %d\n\t\t"+
-                "Design Voltage: %d\n\t\t"+
-                "SBDS Version Number: %s\n\t\t"+
-                "Maximum Error In Battery Data: %d\n\t\t"+
-                "SBDS Serial Number: %d\n\t\t"+
-                "SBDS Manufacture Date: %d\n\t\t"+
-                "SBDS Device Chemistry: %s\n\t\t"+
-                "Design Capacity Multiplier: %d\n\t\t"+
-                "OEM Sepecific: %d\n",
+        return fmt.Sprintf("Portable Battery\n"+
+                "\t\tLocation: %s\n"+
+                "\t\tManufacturer: %s\n"+
+                "\t\tManufacturer Date: %s\n"+
+                "\t\tSerial Number: %s\n"+
+                "\t\tDevice Name: %s\n"+
+                "\t\tDevice Chemistry: %s\n"+
+                "\t\tDesign Capacity: %d\n"+
+                "\t\tDesign Voltage: %d\n"+
+                "\t\tSBDS Version Number: %s\n"+
+                "\t\tMaximum Error In Battery Data: %d\n"+
+                "\t\tSBDS Serial Number: %d\n"+
+                "\t\tSBDS Manufacture Date: %d\n"+
+                "\t\tSBDS Device Chemistry: %s\n"+
+                "\t\tDesign Capacity Multiplier: %d\n"+
+                "\t\tOEM Sepecific: %d",
                 p.Location,
                 p.Manufacturer,
                 p.ManufacturerDate,
@@ -77,15 +77,15 @@ func (h DMIHeader) PortableBattery() *PortableBattery {
 		SerialNumber:              h.FieldString(int(data[0x07])),
 		DeviceName:                h.FieldString(int(data[0x08])),
 		DeviceChemistry:           PortableBatteryDeviceChemistry(data[0x09]),
-		DesignCapacity:            U16(data[0x0A:0x0C]),
-		DesignVoltage:             U16(data[0x0C:0x0E]),
+		DesignCapacity:            u16(data[0x0A:0x0C]),
+		DesignVoltage:             u16(data[0x0C:0x0E]),
 		SBDSVersionNumber:         h.FieldString(int(data[0x0E])),
 		MaximumErrorInBatteryData: data[0x0F],
-		SBDSSerialNumber:          U16(data[0x10:0x12]),
-		SBDSManufactureDate:       U16(data[0x12:0x14]),
+		SBDSSerialNumber:          u16(data[0x10:0x12]),
+		SBDSManufactureDate:       u16(data[0x12:0x14]),
 		SBDSDeviceChemistry:       h.FieldString(int(data[0x14])),
 		DesignCapacityMultiplier:  data[0x15],
-		OEMSepecific:              U32(data[0x16:0x1A]),
+		OEMSepecific:              u32(data[0x16:0x1A]),
 	}
 }
 ```
