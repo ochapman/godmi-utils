@@ -35,8 +35,8 @@ type SMBIOSStructureType byte
 
 type SMBIOSStructureHandle uint16
 
-type InfoCommon struct {
-	Type   SMBIOSStructureType
+type infoCommon struct {
+	SMType   SMBIOSStructureType
 	Length byte
 	Handle SMBIOSStructureHandle
 }
@@ -118,7 +118,7 @@ func (s StructTypes) DMIHeaderMethod(name string) string {
 	// Field
 	var offset int
 	for _, ss := range s {
-		if ss.Type == "InfoCommon" {
+		if ss.Type == "infoCommon" {
 			offset += 4
 			continue
 		}
@@ -127,13 +127,13 @@ func (s StructTypes) DMIHeaderMethod(name string) string {
 			fmt.Fprintf(nstring, "%s: data[0x%02X],\n", ss.Name, offset)
 			offset += 1
 		case "uint16":
-			fmt.Fprintf(nstring, "%s: U16(data[0x%02X:0x%02X]),\n", ss.Name, offset, offset+2)
+			fmt.Fprintf(nstring, "%s: u16(data[0x%02X:0x%02X]),\n", ss.Name, offset, offset+2)
 			offset += 2
 		case "uint32":
-			fmt.Fprintf(nstring, "%s: U32(data[0x%02X:0x%02X]),\n", ss.Name, offset, offset+4)
+			fmt.Fprintf(nstring, "%s: u32(data[0x%02X:0x%02X]),\n", ss.Name, offset, offset+4)
 			offset += 4
 		case "uint64":
-			fmt.Fprintf(nstring, "%s: U64(data[0x%02X:0x%02X]),\n", ss.Name, offset, offset+8)
+			fmt.Fprintf(nstring, "%s: u64(data[0x%02X:0x%02X]),\n", ss.Name, offset, offset+8)
 			offset += 8
 		case "string":
 			fmt.Fprintf(nstring, "%s: h.FieldString(int(data[0x%02X])),\n", ss.Name, offset)
@@ -165,9 +165,9 @@ func (s StructTypes) TypeString(name string) string {
 		})
 	}
 	fmt.Fprintf(tstring, "func (%c %s) String() string {\n", v, name)
-	fmt.Fprintf(tstring, "return fmt.Sprintf(\"%s:\\n\\t\\t\"+\n", splitCap(name))
+	fmt.Fprintf(tstring, "return fmt.Sprintf(\"%s\\n\"+\n", splitCap(name))
 	for i, ss := range s {
-		if ss.Type == "InfoCommon" {
+		if ss.Type == "infoCommon" {
 			continue
 		}
 		var fm string
@@ -176,15 +176,15 @@ func (s StructTypes) TypeString(name string) string {
 		} else {
 			fm = "%s"
 		}
-		fmt.Fprintf(tstring, "\"%s: %s", splitCap(ss.Name), fm)
+		fmt.Fprintf(tstring, "\"\\t%s: %s", splitCap(ss.Name), fm)
 		if i != len(s)-1 {
-			fmt.Fprintf(tstring, "\\n\\t\\t\"+\n")
+			fmt.Fprintf(tstring, "\\n\"+\n")
 		} else {
-			fmt.Fprintf(tstring, "\\n\",\n")
+			fmt.Fprintf(tstring, "\",\n")
 		}
 	}
 	for i, ss := range s {
-		if ss.Type == "InfoCommon" {
+		if ss.Type == "infoCommon" {
 			continue
 		}
 		if i != len(s)-1 {
@@ -196,7 +196,7 @@ func (s StructTypes) TypeString(name string) string {
 	fmt.Fprintf(tstring, "}\n")
 	fmttstring, err := format.Source(tstring.Bytes())
 	if err != nil {
-		return "Error"
+		return "format Error: " + err.Error()
 	}
 	return string(fmttstring)
 }
